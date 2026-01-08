@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>ErrorPing REST API Test</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 30px;
+        }
+        button {
+            margin: 6px 0;
+            padding: 6px 12px;
+        }
+        pre {
+            background: #111;
+            color: #0f0;
+            padding: 16px;
+            margin-top: 20px;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+
+<h1>ErrorPing REST API 테스트</h1>
+
+<button onclick="postMethodNotSupported()">
+    HttpRequestMethodNotSupportedException
+</button>
+
+<button onclick="getIllegalArgument()">
+    IllegalArgumentException
+</button>
+
+<button onclick="postValidationError()">
+    MethodArgumentNotValidException
+</button>
+
+<button onclick="getTypeMismatch()">
+    MethodArgumentTypeMismatchException
+</button>
+
+<button onclick="postCustomExceptionNoMessage()">
+    CustomException (no message)
+</button>
+
+<button onclick="postCustomExceptionWithMessage()">
+    CustomException (with message)
+</button>
+
+<pre id="result">응답 대기중...</pre>
+
+<script>
+    async function request(url, options = {}) {
+        try {
+            const res = await fetch(url, options);
+
+            const contentType = res.headers.get("content-type");
+            let body;
+
+            if (contentType && contentType.includes("application/json")) {
+                body = await res.json();
+            } else {
+                body = await res.text();
+            }
+
+            document.getElementById("result").textContent =
+                JSON.stringify({
+                    status: res.status,
+                    headers: Object.fromEntries(res.headers.entries()),
+                    body: body
+                }, null, 2);
+
+        } catch (e) {
+            document.getElementById("result").textContent = e.toString();
+        }
+    }
+
+    function postMethodNotSupported() {
+        request("/test/method", {
+            method: "POST"
+        });
+    }
+
+    function getIllegalArgument() {
+        request("/test/illegal?name=bad");
+    }
+
+    function postValidationError() {
+        request("/test/validation", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                email: "invalid-email"
+            })
+        });
+    }
+
+    function getTypeMismatch() {
+        request("/test/type/abc");
+    }
+
+    function postCustomExceptionNoMessage() {
+        request("/test/custom/no-message", {
+            method: "POST"
+        });
+    }
+
+    function postCustomExceptionWithMessage() {
+        request("/test/custom/with-message", {
+            method: "POST"
+        });
+    }
+</script>
+
+</body>
+</html>
