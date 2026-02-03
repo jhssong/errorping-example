@@ -34,20 +34,8 @@ public class CustomExceptionResolver implements ExceptionResolver {
     }
 
     @Override
-    public String logMessage(ErrorResponse er, HttpServletRequest request) {
-        return String.format("[CustomException] status=%s method=%s uri=%s message=%s",
-                er.getStatus(),
-                request.getMethod(),
-                request.getRequestURI(),
-                er.getMessage());
-    }
-
-    @Override
     public boolean shouldAlert(Throwable ex) {
         CustomException e = (CustomException) ex;
-        if (e.isShouldAlert()) {
-            log.error("Exception Detail: ", e);
-        }
         return e.isShouldAlert();
     }
 }

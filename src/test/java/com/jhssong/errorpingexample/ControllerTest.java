@@ -98,7 +98,7 @@ class ControllerTest {
         mockMvc.perform(post(BASE_URL + "/custom/no-message"))
                 .andDo(print())
                 .andExpect(status().isInternalServerError())
-                .andExpect(jsonPath("$.title").value("테스트 오류"))
+                .andExpect(jsonPath("$.title").value("테스트 오류입니다."))
                 .andExpect(jsonPath("$.message").value(""));
     }
 
@@ -108,7 +108,7 @@ class ControllerTest {
         mockMvc.perform(post(BASE_URL + "/custom/with-message"))
                 .andDo(print())
                 .andExpect(status().isInternalServerError())
-                .andExpect(jsonPath("$.title").value("테스트 오류"))
+                .andExpect(jsonPath("$.title").value("테스트 오류입니다."))
                 .andExpect(jsonPath("$.message").value("테스트 메세지입니다."));
     }
 }
