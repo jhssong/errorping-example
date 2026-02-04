@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <include resource="logback/errorping-log-converters.xml"/>
+    <include resource="logback/errorping-log-patterns.xml"/>
+    <include resource="logback/errorping-log-appenders.xml"/>
+
+    <springProperty name="APP_NAME"
+                    source="spring.application.name"
+                    defaultValue="app"/>
+
+    <property name="LOG_PATH" value="./logs"/>
+
+    <springProfile name="local, default">
+
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+        </root>
+
+    </springProfile>
+
+    <springProfile name="prod">
+
+        <root level="INFO">
+            <appender-ref ref="CONSOLE"/>
+            <appender-ref ref="ASYNC_FILE"/>
+        </root>
+
+    </springProfile>
+
+</configuration>
