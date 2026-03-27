@@ -11,13 +11,23 @@
         button {
             margin: 6px 0;
             padding: 6px 12px;
+            cursor: pointer;
         }
+        /* 로그 창 디자인 개선 (스크롤 추가) */
         pre {
             background: #111;
             color: #0f0;
             padding: 16px;
             margin-top: 20px;
             white-space: pre-wrap;
+            max-height: 600px;
+            overflow-y: auto;
+            border-radius: 8px;
+        }
+        .log-entry {
+            margin-bottom: 20px;
+            border-bottom: 1px dashed #444;
+            padding-bottom: 20px;
         }
     </style>
 </head>
@@ -26,61 +36,77 @@
 <h1>ErrorPing REST API 테스트</h1>
 
 <button onclick="postMethodNotSupported()">
-    HttpRequestMethodNotSupportedException
+    HttpRequestMethodNotSupportedException (405)
 </button>
 
 <button onclick="getIllegalArgument()">
-    IllegalArgumentException
+    IllegalArgumentException (500)
 </button>
 
 <button onclick="postValidationError()">
-    MethodArgumentNotValidException
+    MethodArgumentNotValidException (400)
 </button>
 
 <button onclick="getTypeMismatch()">
-    MethodArgumentTypeMismatchException
+    MethodArgumentTypeMismatchException (400)
 </button>
 
-<button onclick="postCustomExceptionNoMessage()">
-    CustomException (no message)
+<button onclick="postRuntimeException()">
+    RuntimeException
 </button>
 
-<button onclick="postCustomExceptionWithMessage()">
-    CustomException (with message)
-</button>
-
-<pre id="result">응답 대기중...</pre>
+<pre id="result">대기중...</pre>
 
 <script>
     async function request(url, options = {}) {
+        const method = options.method || 'GET';
+
         try {
             const res = await fetch(url, options);
-
             const contentType = res.headers.get("content-type");
             let body;
 
+            // JSON 응답이면 파싱, 아니면 텍스트로 처리
             if (contentType && contentType.includes("application/json")) {
                 body = await res.json();
             } else {
                 body = await res.text();
             }
 
-            document.getElementById("result").textContent =
-                JSON.stringify({
-                    status: res.status,
-                    headers: Object.fromEntries(res.headers.entries()),
-                    body: body
-                }, null, 2);
+            // 로그에 찍힐 데이터 객체 생성
+            const logData = {
+                status: res.status,
+                headers: Object.fromEntries(res.headers.entries()),
+                body: body
+            };
+
+            // 화면에 로그 추가하기
+            appendLog(method, url, logData);
 
         } catch (e) {
-            document.getElementById("result").textContent = e.toString();
+            // 네트워크 에러(서버 꺼짐 등) 처리
+            appendLog(method, url, { error: e.toString() });
         }
     }
 
+    // 화면에 로그를 누적해서 찍어주는 함수
+    function appendLog(method, url, data) {
+        const resultEl = document.getElementById("result");
+
+        // 처음 '대기중...' 글자 지우기
+        if (resultEl.textContent === "대기중...") {
+            resultEl.textContent = "";
+        }
+
+        const time = new Date().toLocaleTimeString();
+        const newLog = `[${time}] 요청: ${method} ${url}\n${JSON.stringify(data, null, 2)}\n\n`;
+        const separator = "---------------------------------------------------\n\n";
+
+        resultEl.textContent = newLog + separator + resultEl.textContent;
+    }
+
     function postMethodNotSupported() {
-        request("/test/method", {
-            method: "POST"
-        });
+        request("/test/method", { method: "POST" });
     }
 
     function getIllegalArgument() {
@@ -90,29 +116,17 @@
     function postValidationError() {
         request("/test/validation", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                email: "invalid-email"
-            })
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email: "invalid-email" }) // 고의로 잘못된 이메일 전송
         });
     }
 
     function getTypeMismatch() {
-        request("/test/type/abc");
+        request("/test/type/abc"); // 숫자가 들어가야 할 곳에 문자를 넣음
     }
 
-    function postCustomExceptionNoMessage() {
-        request("/test/custom/no-message", {
-            method: "POST"
-        });
-    }
-
-    function postCustomExceptionWithMessage() {
-        request("/test/custom/with-message", {
-            method: "POST"
-        });
+    function postRuntimeException() {
+        request("/test/runtime", { method: "POST" });
     }
 </script>
 

@@ -1,7 +1,5 @@
 package com.jhssong.errorpingexample;
 
-import com.jhssong.errorpingexample.exception.CustomException;
-import com.jhssong.errorpingexample.exception.ErrorCode;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -54,21 +52,10 @@ public class Controller {
     }
 
     /**
-     * CustomException
-     * - 사용자가 정의한 Exception 테스트 (message X)
+     * RuntimeException
      */
-    @PostMapping("/custom/no-message")
-    public String customNoMessage() {
-        throw new CustomException(ErrorCode.TEST_NO_MESSAGE);
-    }
-
-    /**
-     * CustomException
-     * - 사용자가 정의한 Exception 테스트 (message O)
-     * - Discord로 알림이 전송됨
-     */
-    @PostMapping("/custom/with-message")
+    @PostMapping("/runtime")
     public String customWithMessage() {
-        throw new CustomException(ErrorCode.TEST_WITH_MESSAGE);
+        throw new RuntimeException("Something went wrong");
     }
 }
