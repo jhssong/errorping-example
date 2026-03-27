@@ -3,17 +3,14 @@
 This project is a sample Spring Boot application that demonstrates how to use Errorping in a real-world setup.
 
 It showcases:
-- Global exception handling 
-- Custom `ExceptionResolver` implementations 
-- Validation errors
-- Logging behavior 
-- Optional Discord alerting
+- Global exception handling
+- Logging behavior
 
 ## Requirements
 
 - JDK 17+
 - Gradle
-- (Optional) Discord Webhook URL
+- Discord Webhook URL
 
 ## Getting Started
 
@@ -47,10 +44,6 @@ Then set the environment variables:
 ```bash
 export DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...
 ```
-
-> If the Discord webhook URL is not configured and an alert is triggered,
-> Errorping will log an ERROR-level message indicating a missing configuration.
-
 
 ## Example
 
